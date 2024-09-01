@@ -3,25 +3,43 @@ import { useRef } from "react";
 import { Todo } from "./hooks/useTodos";
 import axios from "axios";
 
+interface AddTodoContext {
+  previousTodos: Todo[];
+}
+
 const TodoForm = () => {
   const ref = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-  const addTodo = useMutation<Todo, Error, Todo>({
+  const addTodo = useMutation<Todo, Error, Todo, AddTodoContext>({
     mutationFn: (todo: Todo) =>
       axios
-        .post<Todo>("https://jsonplaceholder.typicode.com/todos", todo)
+        .post<Todo>("https://jsonplaceholder.typicode.com/todox", todo)
         .then((res) => res.data),
-    onSuccess: (savedTodo: Todo, newTodo: Todo) => {
-      console.log(savedTodo);
+    onMutate: (newTodo: Todo) => {
+      const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]) || [];
 
-      // APPROACH 1:
-      //queryClient.invalidateQueries(["todos"]);
-
-      // APPORACH 2:
       queryClient.setQueryData<Todo[]>(["todos"], (todos) => [
         newTodo,
         ...(todos || []),
       ]);
+
+      if (ref.current) ref.current.value = "";
+      return { previousTodos };
+    },
+    onSuccess: (savedTodo: Todo, newTodo: Todo) => {
+      // APPROACH 1:
+      //queryClient.invalidateQueries(["todos"]);
+      // APPORACH 2:
+
+      queryClient.setQueryData<Todo[]>(
+        ["todos"],
+        (todos) => todos?.map((todo) => (todo === newTodo ? savedTodo : todo)) // u do this because the savedTodo has the id of the backened so u'd replace that obj in the arr
+      );
+    },
+
+    onError: (error, newTodo, context) => {
+      if (!context) return;
+      queryClient.setQueryData<Todo[]>(["todos"], context.previousTodos);
     },
   });
   return (
@@ -48,7 +66,9 @@ const TodoForm = () => {
           <input ref={ref} type="text" className="form-control" />
         </div>
         <div className="col">
-          <button className="btn btn-primary">Add</button>
+          <button disabled={addTodo.isLoading} className="btn btn-primary">
+            {addTodo.isLoading ? "Adding..." : "Add"}
+          </button>
         </div>
       </form>
     </>
