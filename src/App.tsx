@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <TasksContext.Provider value={{ tasks, dispatch: dispatch }}>
+        <TasksContext.Provider value={{ tasks, dispatch }}>
           <NavBar />
           <HomePage />
         </TasksContext.Provider>
