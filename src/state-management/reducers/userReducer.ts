@@ -6,9 +6,9 @@ interface LogoutAction {
   type: "LOGOUT";
 }
 
-type UserAction = LoginAction | LogoutAction;
+export type AuthAction = LoginAction | LogoutAction;
 
-const userReducer = (state: string, action: UserAction): string => {
+const authReducer = (state: string, action: AuthAction): string => {
   switch (action.type) {
     case "LOGIN":
       return action.username;
@@ -19,4 +19,4 @@ const userReducer = (state: string, action: UserAction): string => {
   }
 };
 
-export default userReducer;
+export default authReducer;
