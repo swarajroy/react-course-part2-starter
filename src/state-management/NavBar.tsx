@@ -1,17 +1,18 @@
 import { useContext } from "react";
 import LoginStatus from "./LoginStatus";
-import TasksContext from "./contexts/tasksContext";
 import AuthContext from "./contexts/authContext";
-import authReducer from "./reducers/userReducer";
-import { useReducer } from "react";
+import TasksContext from "./tasks/tasksContext";
 
 const NavBar = () => {
   const { tasks } = useContext(TasksContext);
+  const { user, dispatch } = useContext(AuthContext);
 
   return (
     <nav className="navbar d-flex justify-content-between">
       <span className="badge text-bg-secondary">{tasks.length}</span>
-      <LoginStatus />
+      <AuthContext.Provider value={{ user, dispatch }}>
+        <LoginStatus />
+      </AuthContext.Provider>
     </nav>
   );
 };
