@@ -1,11 +1,8 @@
-import { useContext } from "react";
-import TasksContext from "./tasksContext";
 import useAuthStore from "../auth/store";
-
-const useTasks = () => useContext(TasksContext);
+import useTasksStore from "./store";
 
 const TaskList = () => {
-  const { tasks, dispatch } = useTasks();
+  const { tasks, add, remove } = useTasksStore();
   const { username } = useAuthStore();
 
   return (
@@ -14,10 +11,7 @@ const TaskList = () => {
       <button
         onClick={() =>
           //setTasks([{ id: Date.now(), title: "Task " + Date.now() }, ...tasks])
-          dispatch({
-            type: "ADD",
-            task: { id: Date.now(), title: "Task " + Date.now() },
-          })
+          add({ id: Date.now(), title: "Task " + Date.now() })
         }
         className="btn btn-primary my-3"
       >
@@ -34,7 +28,7 @@ const TaskList = () => {
               className="btn btn-outline-danger"
               onClick={() =>
                 //setTasks(tasks.filter((t) => t.id !== task.id))
-                dispatch({ type: "DELETE", taskId: task.id })
+                remove(task.id)
               }
             >
               Delete
